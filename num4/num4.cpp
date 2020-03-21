@@ -43,9 +43,6 @@ int main()
     int M = range(0, 5001); // M э [1, 5000]
 
     vector<int>* g = new vector<int>[N]; // граф
-    bool* used = new bool[N];
-    for (int i = 0; i < N; i++)
-        used[i] = 0;
  
     cout << "\n ¬ведите пары: \n";
     for (int i = 0; i < M; i++) // заполнение
@@ -56,11 +53,15 @@ int main()
         u--, v--;
         g[u].push_back(v);
     }
+
+    bool* used = new bool[N]; // массив посещенных вершин
+    for (int i = 0; i < N; i++)
+        used[i] = 0;
    
     vector<char> cl; // массив цветов (дл€ проверки на цикличность графов)
     vector<int> p; // воспомогательный вектор
 
-    p.assign(N, -1); // присваиваем всему массиву значение -1
+    p.assign(N, -1);
     cl.assign(N, 0);
     
     bool cycle = false;
