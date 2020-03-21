@@ -29,8 +29,8 @@
 using namespace std;
 
 int range(int lowBorder, int highBorder); //проверка на правильность ввода с установленным диапазоном
-void dfs(vector<int> adj[], bool* used, int v);
-bool dfs_cycle(vector<int> adj[], vector<char> cl, vector<int> p, int cycle, int v); // проверка на ацикличность графа
+bool dfs_cycle(vector<int> adj[], vector<char> cl, vector<int> p, int v); // проверка на ацикличность графа
+void dfs(vector<int> adj[], bool* used, int v); // обход в глубину для топологической сортировки
 void topological_sort(vector<int> adj[], bool* used, int N);
 vector<int> answer; // ответ - одно из возможных построений
 
@@ -58,18 +58,21 @@ int main()
     }
    
     vector<char> cl; // массив цветов (для проверки на цикличность графов)
-    vector<int> p; // воспогательный вектор
-    int cycle = -1;
+    vector<int> p; // воспомогательный вектор
 
     p.assign(N, -1); // присваиваем всему массиву значение -1
     cl.assign(N, 0);
     
+    bool cycle = false;
     for (int i = 0; i < N; ++i)
-        if (dfs_cycle(g, cl, p, cycle, i))
+        if (dfs_cycle(g, cl, p, i))//если цикл найден
+        {
+            cycle = true;
             break;
+        }
 
     cout << "\nВозможно ли построиться так, чтобы прапорщик остался доволен?";
-    if (cycle == -1) // если граф не содержит циклов, то да
+    if (cycle == false) // если граф не содержит циклов, то да
     {                   // потому что тогда топологическая сортировка возможна
         cout << " Yes \n";
         topological_sort(g, used, N);
@@ -96,7 +99,7 @@ int range(int lowBorder, int highBorder) //проверка на правильность ввода с уста
     return range;
 }
 
-bool dfs_cycle(vector<int> adj[], vector<char> cl, vector<int> p, int cycle, int v) // проверка на ацикличность графа
+bool dfs_cycle(vector<int> adj[], vector<char> cl, vector<int> p, int v) // проверка на ацикличность графа
 {
     cl[v] = 1; // - зашли в вершину в первый раз
     for (size_t i = 0; i < adj[v].size(); ++i) 
@@ -105,14 +108,11 @@ bool dfs_cycle(vector<int> adj[], vector<char> cl, vector<int> p, int cycle, int
         if (cl[to] == 0) //если вершина не была посещена
         {
             p[to] = v;
-            if (dfs_cycle(adj, cl, p, cycle, to)) // запускаем поиск в глубину
+            if (dfs_cycle(adj, cl, p, to)) // запускаем поиск в глубину
                 return true;
         }
         else if (cl[to] == 1) // если вершина была посещена
-        {
-            cycle = to; // изменяем значение переменной
             return true;
-        }
     }
     cl[v] = 2;
     return false;
